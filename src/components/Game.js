@@ -1,8 +1,9 @@
 // src/components/Game.js
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { generateOperation, calculateScore, generateMultipleChoiceOptions } from '../utils/gameEngine';
-import { useScores } from '../hooks/useScores';
+import { useScores } from '../hooks/useScores'; 
 
 const THEME = {
     bg: '#0A0E17', bgCard: '#131A29', primary: '#00CFCF', 
@@ -10,7 +11,11 @@ const THEME = {
     correct: '#4CAF50', incorrect: '#F44336'   
 };
 
-export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, isEligibleForLeaderboard, playerName, onQuit }) {
+export default function Game({ route, navigation }) {
+    // Extraemos los parámetros nativos de la ruta
+    const { difficulty, gameMode, maxIterations, maxTimeMs, isEligibleForLeaderboard, playerName } = route.params;
+    const onQuit = () => navigation.goBack();
+
     const { saveScore } = useScores(); 
     
     const [gameState, setGameState] = useState('playing'); 
@@ -204,8 +209,6 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
 
     if (!operation) return null;
 
-    
-
     const renderKeyboard = () => {
         const keys = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['-', '0', 'del']];
         return (
@@ -227,11 +230,10 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
     };
 
     return (
-        <View style={styles.containerWrapper}>
-            <Animated.View style={[StyleSheet.absoluteFillObject,{borderWidth: 20, borderColor: flashColor, opacity: flashAnim, zIndex: 10, pointerEvents: 'none' }]} />
+        <SafeAreaView style={styles.containerWrapper}>
+            <Animated.View style={[StyleSheet.absoluteFillObject,{borderWidth: 20, borderColor: flashColor, opacity: flashAnim, zIndex: 10, pointerEvents: 'none' }]} />    
 
             <Animated.View style={[styles.container, { transform: [{ translateX: shakeAnim }] }]}>
-                {/* Cabecera */}
                 <View style={styles.header}>
                     <View style={styles.headerGroup}><Text style={styles.statsLabel}>NIVEL</Text><Text style={styles.statsVal}>{level}</Text></View>
                     <View style={styles.headerMid}>
@@ -241,13 +243,11 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     <View style={[styles.headerGroup, {alignItems: 'flex-end'}]}><Text style={styles.statsLabel}>PUNTOS</Text><Text style={styles.statsVal}>{score}</Text></View>
                 </View>
                 
-                {/* Tarjeta central anclada para la operación */}
                 <View style={styles.operationWrapper}>
                     <View style={styles.operationCard}>
                         <Text style={styles.operationCardLabel}>
                             {gameMode === 'reloj' ? 'Muerte Súbita' : 'Calcula'}
                         </Text>
-                        
                         {gameMode === 'vof' ? (
                             <>
                                 <Text style={styles.question}>{operation.question}</Text>
@@ -260,7 +260,6 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     </View>
                 </View>
                 
-                {/* Controles de juego con los botones corregidos */}
                 <View style={styles.controls}>
                     {(gameMode === 'clasico' || gameMode === 'reloj') && (
                         <View style={styles.customInputWrapper}>
@@ -276,18 +275,12 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     {gameMode === 'vof' && (
                         <View style={styles.rowButtons}>
                              <View style={{flex: 1, marginRight: 6}}>
-                                 <TouchableOpacity 
-                                    style={[styles.btn, styles.btnResponse, styles.btnCorrect]} 
-                                    onPress={() => handleAnswer(false, proposedAnswer === operation.correctAnswer)}
-                                 >
+                                 <TouchableOpacity style={[styles.btn, styles.btnResponse, styles.btnCorrect]} onPress={() => handleAnswer(false, proposedAnswer === operation.correctAnswer)}>
                                      <Text style={styles.btnText}>Verdadero</Text>
                                  </TouchableOpacity>
                              </View>
                              <View style={{flex: 1, marginLeft: 6}}>
-                                 <TouchableOpacity 
-                                    style={[styles.btn, styles.btnResponse, styles.btnIncorrect]} 
-                                    onPress={() => handleAnswer(false, proposedAnswer !== operation.correctAnswer)}
-                                 >
+                                 <TouchableOpacity style={[styles.btn, styles.btnResponse, styles.btnIncorrect]} onPress={() => handleAnswer(false, proposedAnswer !== operation.correctAnswer)}>
                                      <Text style={styles.btnText}>Falso</Text>
                                  </TouchableOpacity>
                              </View>
@@ -298,10 +291,7 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                         <View style={styles.choiceGrid}>
                             {options.map((opt, index) => (
                                 <View key={index} style={styles.choiceWrapper}>
-                                    <TouchableOpacity 
-                                        style={[styles.btn, styles.btnResponse]} 
-                                        onPress={() => handleAnswer(false, opt === operation.correctAnswer)}
-                                    >
+                                    <TouchableOpacity style={[styles.btn, styles.btnResponse]} onPress={() => handleAnswer(false, opt === operation.correctAnswer)}>
                                         <Text style={styles.btnText}>{opt.toString()}</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -310,7 +300,6 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     )}
                 </View>
                 
-                {/* Botones de Abandonar */}
                 {(gameMode === 'vof' || gameMode === 'choice') && (
                     <TouchableOpacity style={[styles.btn, styles.btnAbandon]} onPress={onQuit}><Text style={styles.btnText}>Abandonar Partida</Text></TouchableOpacity>
                 )}
@@ -318,16 +307,13 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     <TouchableOpacity style={{alignItems: 'center', marginTop: 15, padding: 10}} onPress={onQuit}><Text style={{color: THEME.textSub, fontWeight: 'bold'}}>Abandonar Partida</Text></TouchableOpacity>
                 )}
             </Animated.View>
-        </View>
+        </SafeAreaView>
     );
 }
 
-
 const styles = StyleSheet.create({
     containerWrapper: { flex: 1, backgroundColor: THEME.bg },
-    // Volvemos a space-between para anclar el header arriba y el botón de abandonar abajo
     container: { flex: 1, padding: 15, justifyContent: 'space-between' },
-    
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: THEME.border },
     headerGroup: { alignItems: 'flex-start' },
     headerMid: { alignItems: 'center' },
@@ -335,31 +321,24 @@ const styles = StyleSheet.create({
     statsVal: { fontSize: 20, fontWeight: 'bold', color: THEME.text },
     timer: { fontSize: 32, color: THEME.primary, fontWeight: 'bold' },
     livesText: { fontSize: 16, marginTop: -5 },
-    
-    // EL SECRETO DEL INTERMEDIO: flex: 1 hace que la operación se centre suavemente en el espacio restante
     operationWrapper: { flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }, 
     operationCard: { backgroundColor: THEME.bgCard, width: '100%', paddingVertical: 25, paddingHorizontal: 20, borderRadius: 25, borderWidth: 2, borderColor: THEME.border, alignItems: 'center', justifyContent: 'center', elevation: 4 },
     operationCardLabel: { color: THEME.primary, fontSize: 12, fontWeight: '800', letterSpacing: 4, marginBottom: 10, textTransform: 'uppercase', opacity: 0.6 },
     question: { fontSize: 80, textAlign: 'center', fontWeight: 'bold', color: THEME.text, lineHeight: 85 }, 
     divider: { width: '40%', height: 2, backgroundColor: THEME.border, marginVertical: 10 },
     proposedAnswerText: { fontSize: 50, color: THEME.textSub, fontWeight: 'bold', textAlign: 'center' },
-    
-    // Los controles ahora ocupan solo su espacio necesario, empujados un poco hacia abajo por la pizarra
     controls: { width: '100%', alignItems: 'center', paddingBottom: 10 }, 
     rowButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
     choiceGrid: { flexDirection: 'row', flexWrap: 'wrap', width: '100%', justifyContent: 'center' },
     choiceWrapper: { width: '50%', padding: 4 },
-    
     customInputWrapper: { alignItems: 'center', width: '100%' },
     inputDisplay: { backgroundColor: THEME.bgCard, width: '100%', borderRadius: 15, borderWidth: 2, borderColor: THEME.border, alignItems: 'center', paddingVertical: 8, marginBottom: 8 },
     inputText: { fontSize: 36, color: THEME.text, fontWeight: 'bold' },
-
     keyboardContainer: { width: '100%', maxWidth: 350 },
     keyboardRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
     keyBtn: { backgroundColor: THEME.bgCard, flex: 1, marginHorizontal: 3, paddingVertical: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: THEME.border },
     keyBtnSpecial: { backgroundColor: '#2A364F' },
     keyText: { color: THEME.text, fontSize: 20, fontWeight: 'bold' },
-    
     btn: { paddingVertical: 14, borderRadius: 15, alignItems: 'center', elevation: 3, marginVertical: 5, width: '100%' },
     btnResponse: { backgroundColor: THEME.bgCard, borderWidth: 1, borderColor: THEME.border, width: '100%' },
     btnDisabled: { opacity: 0.4 },
@@ -367,7 +346,6 @@ const styles = StyleSheet.create({
     btnCorrect: { backgroundColor: THEME.correct, borderColor: THEME.correct },
     btnIncorrect: { backgroundColor: THEME.incorrect, borderColor: THEME.incorrect },
     btnAbandon: { backgroundColor: '#37474F', marginTop: 5 },
-
     finishedContainer: { flex: 1, justifyContent: 'center', paddingHorizontal: 15 },
     finalTitle: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', color: THEME.text, marginBottom: 20 },
     scoreCircle: { alignItems: 'center', justifyContent: 'center', backgroundColor: THEME.bgCard, paddingVertical: 30, borderRadius: 25, marginBottom: 20, borderWidth: 2, borderColor: THEME.primary, elevation: 5 },
