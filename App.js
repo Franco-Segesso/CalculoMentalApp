@@ -142,7 +142,7 @@ export default function App() {
             </View>
             
             <View style={{marginTop: 10, marginBottom: 30}}>
-                <AppButton title="Ver Salón de la Fama" onPress={handleOpenHistory} secondary />
+                <AppButton title="Ver Mejores Resultados" onPress={handleOpenHistory} secondary />
             </View>
 
             <LeaderboardModal visible={showHistory} onClose={() => setShowHistory(false)} onClear={clearHistory} historyData={historyData} />

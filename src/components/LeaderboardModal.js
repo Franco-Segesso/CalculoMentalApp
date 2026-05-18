@@ -38,7 +38,7 @@ export default function LeaderboardModal({ visible, onClose, onClear, historyDat
     return (
         <Modal visible={visible} animationType="slide">
             <SafeAreaView style={styles.container}>
-                <Text style={styles.modalTitle}>🏆 Salón de la Fama</Text>
+                <Text style={styles.modalTitle}>🏆 Mejores Resultados </Text>
                 
                 <ScrollView style={styles.historyScroll} showsVerticalScrollIndicator={false}>
                     {gameModes.map(mode => (

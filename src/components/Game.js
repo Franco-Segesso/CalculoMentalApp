@@ -204,14 +204,7 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
 
     if (!operation) return null;
 
-    const ResponseButton = ({ title, onPress, disabled, variant }) => (
-        <TouchableOpacity 
-            style={[styles.btn, styles.btnResponse, disabled && styles.btnDisabled, variant === 'correct' && styles.btnCorrect, variant === 'incorrect' && styles.btnIncorrect]} 
-            onPress={onPress} disabled={disabled}
-        >
-            <Text style={styles.btnText}>{title}</Text>
-        </TouchableOpacity>
-    );
+    
 
     const renderKeyboard = () => {
         const keys = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['-', '0', 'del']];
@@ -248,7 +241,7 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     <View style={[styles.headerGroup, {alignItems: 'flex-end'}]}><Text style={styles.statsLabel}>PUNTOS</Text><Text style={styles.statsVal}>{score}</Text></View>
                 </View>
                 
-                {/* NUEVO: Tarjeta central anclada para la operación */}
+                {/* Tarjeta central anclada para la operación */}
                 <View style={styles.operationWrapper}>
                     <View style={styles.operationCard}>
                         <Text style={styles.operationCardLabel}>
@@ -267,7 +260,7 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                     </View>
                 </View>
                 
-                {/* Controles de juego */}
+                {/* Controles de juego con los botones corregidos */}
                 <View style={styles.controls}>
                     {(gameMode === 'clasico' || gameMode === 'reloj') && (
                         <View style={styles.customInputWrapper}>
@@ -282,8 +275,22 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
 
                     {gameMode === 'vof' && (
                         <View style={styles.rowButtons}>
-                             <View style={{flex: 1, marginRight: 6}}><ResponseButton title="Verdadero" variant="correct" onPress={() => handleAnswer(false, proposedAnswer === operation.correctAnswer)} /></View>
-                             <View style={{flex: 1, marginLeft: 6}}><ResponseButton title="Falso" variant="incorrect" onPress={() => handleAnswer(false, proposedAnswer !== operation.correctAnswer)} /></View>
+                             <View style={{flex: 1, marginRight: 6}}>
+                                 <TouchableOpacity 
+                                    style={[styles.btn, styles.btnResponse, styles.btnCorrect]} 
+                                    onPress={() => handleAnswer(false, proposedAnswer === operation.correctAnswer)}
+                                 >
+                                     <Text style={styles.btnText}>Verdadero</Text>
+                                 </TouchableOpacity>
+                             </View>
+                             <View style={{flex: 1, marginLeft: 6}}>
+                                 <TouchableOpacity 
+                                    style={[styles.btn, styles.btnResponse, styles.btnIncorrect]} 
+                                    onPress={() => handleAnswer(false, proposedAnswer !== operation.correctAnswer)}
+                                 >
+                                     <Text style={styles.btnText}>Falso</Text>
+                                 </TouchableOpacity>
+                             </View>
                         </View>
                     )}
 
@@ -291,13 +298,19 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
                         <View style={styles.choiceGrid}>
                             {options.map((opt, index) => (
                                 <View key={index} style={styles.choiceWrapper}>
-                                    <ResponseButton title={opt.toString()} onPress={() => handleAnswer(false, opt === operation.correctAnswer)} />
+                                    <TouchableOpacity 
+                                        style={[styles.btn, styles.btnResponse]} 
+                                        onPress={() => handleAnswer(false, opt === operation.correctAnswer)}
+                                    >
+                                        <Text style={styles.btnText}>{opt.toString()}</Text>
+                                    </TouchableOpacity>
                                 </View>
                             ))}
                         </View>
                     )}
                 </View>
                 
+                {/* Botones de Abandonar */}
                 {(gameMode === 'vof' || gameMode === 'choice') && (
                     <TouchableOpacity style={[styles.btn, styles.btnAbandon]} onPress={onQuit}><Text style={styles.btnText}>Abandonar Partida</Text></TouchableOpacity>
                 )}
@@ -308,6 +321,7 @@ export default function Game({ difficulty, gameMode, maxIterations, maxTimeMs, i
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     containerWrapper: { flex: 1, backgroundColor: THEME.bg },
