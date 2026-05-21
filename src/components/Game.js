@@ -1,9 +1,9 @@
 // src/components/Game.js
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { generateOperation, calculateScore, generateMultipleChoiceOptions } from '../utils/gameEngine';
-import { useScores } from '../hooks/useScores'; 
+import { useScores } from '../hooks/useScores';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const THEME = {
     bg: '#0A0E17', bgCard: '#131A29', primary: '#00CFCF', 
@@ -12,7 +12,6 @@ const THEME = {
 };
 
 export default function Game({ route, navigation }) {
-    // Extraemos los parámetros nativos de la ruta
     const { difficulty, gameMode, maxIterations, maxTimeMs, isEligibleForLeaderboard, playerName } = route.params;
     const onQuit = () => navigation.goBack();
 
@@ -59,7 +58,14 @@ export default function Game({ route, navigation }) {
     };
 
     const tiempoGlobalReloj = 60; 
-    const currentMaxTimeMs = gameMode === 'reloj' ? maxTimeMs : Math.max(1500, maxTimeMs - (level - 1) * 1000);
+    
+    let minTimeMs = 1000; 
+    if (difficulty === 'medio') minTimeMs = 3000; 
+    if (difficulty === 'dificil') minTimeMs = 6000; 
+
+    const currentMaxTimeMs = gameMode === 'reloj' 
+        ? maxTimeMs 
+        : Math.max(minTimeMs, maxTimeMs - (level - 1) * 1000);
 
     const handleGameOver = async (finalScore) => {
         setGameState('finished');
@@ -132,7 +138,7 @@ export default function Game({ route, navigation }) {
     };
 
     const handleAnswer = (isTimeout = false, overrideIsCorrect = null) => {
-        if (gameState !== 'playing' || lives <= 0) return;
+        if (gameState !== 'playing' || (gameMode !== 'reloj' && lives <= 0)) return;
 
         let isCorrect = false;
         const timeSpentMs = gameMode === 'reloj' ? 2000 : (currentMaxTimeMs / 1000 - timeLeft) * 1000;
@@ -159,9 +165,17 @@ export default function Game({ route, navigation }) {
         }));
 
         if (!isCorrect) {
+            // Si estamos en Muerte Súbita (Contra Reloj), un error es el fin del juego inmediato
+            if (gameMode === 'reloj') {
+                setTimeout(() => handleGameOver(newScore), 300);
+                return;
+            }
+            
+            // Si estamos en otros modos, restamos una vida
             const currentLives = lives - 1;
             setLives(currentLives);
-            if (currentLives <= 0 || gameMode === 'reloj') {
+            
+            if (currentLives <= 0) {
                 setTimeout(() => handleGameOver(newScore), 300);
                 return;
             }
@@ -180,7 +194,7 @@ export default function Game({ route, navigation }) {
         const tiempoPromedio = totalPreguntas > 0 ? (stats.totalTime / totalPreguntas).toFixed(1) : 0;
 
         return (
-            <View style={[styles.container, styles.finishedContainer]}>
+            <SafeAreaView style={[styles.container, styles.finishedContainer]}>
                 <Text style={styles.finalTitle}>¡Misión Completada!</Text>
                 
                 <View style={styles.scoreCircle}>
@@ -188,8 +202,13 @@ export default function Game({ route, navigation }) {
                     <Text style={styles.scoreBig}>{score}</Text>
                 </View>
 
+                {/* MODIFICACIÓN: Condicional en la grilla final de estadísticas */}
                 <View style={styles.statsGrid}>
-                    <View style={styles.statBox}><Text style={styles.statBoxLabel}>NIVEL</Text><Text style={styles.statBoxVal}>{level}</Text></View>
+                    {gameMode !== 'reloj' ? (
+                        <View style={styles.statBox}><Text style={styles.statBoxLabel}>NIVEL</Text><Text style={styles.statBoxVal}>{level}</Text></View>
+                    ) : (
+                        <View style={styles.statBox}><Text style={styles.statBoxLabel}>MODO</Text><Text style={styles.statBoxVal}>Reloj</Text></View>
+                    )}
                     <View style={styles.statBox}><Text style={styles.statBoxLabel}>TIEMPO PROM.</Text><Text style={styles.statBoxVal}>{tiempoPromedio}s</Text></View>
                     <View style={[styles.statBox, {borderColor: THEME.correct, borderWidth: 1}]}><Text style={[styles.statBoxLabel, {color: THEME.correct}]}>ACIERTOS</Text><Text style={styles.statBoxVal}>{stats.correct}</Text></View>
                     <View style={[styles.statBox, {borderColor: THEME.incorrect, borderWidth: 1}]}><Text style={[styles.statBoxLabel, {color: THEME.incorrect}]}>ERRORES</Text><Text style={styles.statBoxVal}>{stats.incorrect}</Text></View>
@@ -203,7 +222,7 @@ export default function Game({ route, navigation }) {
                     <TouchableOpacity style={[styles.btn, styles.btnCorrect, {marginBottom: 15}]} onPress={restartGame}><Text style={styles.btnText}>Volver a Jugar</Text></TouchableOpacity>
                     <TouchableOpacity style={[styles.btn, styles.btnAbandon]} onPress={onQuit}><Text style={styles.btnText}>Ir al Menú</Text></TouchableOpacity>
                 </View>
-            </View>
+            </SafeAreaView>
         );
     }
 
@@ -231,13 +250,18 @@ export default function Game({ route, navigation }) {
 
     return (
         <SafeAreaView style={styles.containerWrapper}>
-            <Animated.View style={[StyleSheet.absoluteFillObject,{borderWidth: 20, borderColor: flashColor, opacity: flashAnim, zIndex: 10, pointerEvents: 'none' }]} />    
+            <Animated.View style={[StyleSheet.absoluteFillObject,{borderWidth: 20, borderColor: flashColor, opacity: flashAnim, zIndex: 10, pointerEvents: 'none' }]} />
 
             <Animated.View style={[styles.container, { transform: [{ translateX: shakeAnim }] }]}>
+                {/* MODIFICACIÓN: Cabecera con condicional para Ocultar Nivel */}
                 <View style={styles.header}>
-                    <View style={styles.headerGroup}><Text style={styles.statsLabel}>NIVEL</Text><Text style={styles.statsVal}>{level}</Text></View>
+                    {gameMode !== 'reloj' ? (
+                        <View style={styles.headerGroup}><Text style={styles.statsLabel}>NIVEL</Text><Text style={styles.statsVal}>{level}</Text></View>
+                    ) : (
+                        <View style={styles.headerGroup} /> 
+                    )}
                     <View style={styles.headerMid}>
-                        <Text style={styles.timer}>{timeLeft}s</Text>
+                        <Text style={styles.timer}>{Math.max(0, timeLeft)}s</Text>
                         {gameMode !== 'reloj' && <Text style={styles.livesText}>{'❤️'.repeat(Math.max(0, lives))}</Text>}
                     </View>
                     <View style={[styles.headerGroup, {alignItems: 'flex-end'}]}><Text style={styles.statsLabel}>PUNTOS</Text><Text style={styles.statsVal}>{score}</Text></View>
@@ -308,6 +332,7 @@ export default function Game({ route, navigation }) {
                 )}
             </Animated.View>
         </SafeAreaView>
+
     );
 }
 
@@ -315,7 +340,7 @@ const styles = StyleSheet.create({
     containerWrapper: { flex: 1, backgroundColor: THEME.bg },
     container: { flex: 1, padding: 15, justifyContent: 'space-between' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: THEME.border },
-    headerGroup: { alignItems: 'flex-start' },
+    headerGroup: { alignItems: 'flex-start', width: 80 }, // Ancho fijo simétrico para mantener el reloj centrado
     headerMid: { alignItems: 'center' },
     statsLabel: { fontSize: 12, color: THEME.textSub, fontWeight: '700', letterSpacing: 1, marginBottom: 2 },
     statsVal: { fontSize: 20, fontWeight: 'bold', color: THEME.text },

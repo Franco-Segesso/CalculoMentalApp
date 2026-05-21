@@ -1,5 +1,5 @@
 // App.js
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import MenuScreen from './src/screens/MenuScreen';
@@ -14,9 +14,9 @@ export default function App() {
       <Stack.Navigator 
         screenOptions={{ 
             headerShown: false, 
-            gestureEnabled: true, // Habilita el gesto nativo de retroceso
+            gestureEnabled: true, 
             gestureDirection: 'horizontal',
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS // Forzar transiciones fluidas de estilo iOS
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS 
         }}
       >
         <Stack.Screen name="Menu" component={MenuScreen} />
