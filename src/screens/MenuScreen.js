@@ -11,17 +11,17 @@ export default function MenuScreen({ navigation }) {
   const [playerName, setPlayerName] = useState('Jugador'); 
   const [difficulty, setDifficulty] = useState('facil'); 
   const [maxIterationsInput, setMaxIterationsInput] = useState('5'); 
-  // Nuevos tiempos de inicio oficiales acordes a los mínimos de nivel alto
+ 
   const [timeFacil, setTimeFacil] = useState('10');
-  const [timeMedio, setTimeMedio] = useState('12'); // Sube de 7 a 12
-  const [timeDificil, setTimeDificil] = useState('15'); // Sube de 5 a 15
+  const [timeMedio, setTimeMedio] = useState('12'); 
+  const [timeDificil, setTimeDificil] = useState('15'); 
 
   const handleDifficultyChange = (selectedDiff) => {
       setDifficulty(selectedDiff);
       setMaxIterationsInput('5');
       setTimeFacil('10');
-      setTimeMedio('12'); // Resetea al nuevo default
-      setTimeDificil('15'); // Resetea al nuevo default
+      setTimeMedio('12'); 
+      setTimeDificil('15'); 
   };
 
   const isInputValid = 

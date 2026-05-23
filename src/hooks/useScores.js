@@ -33,7 +33,7 @@ export const useScores = () => {
                 mode: gameMode,
                 difficulty: difficulty,
                 date: new Date().toLocaleDateString(),
-                name: playerName.trim() || 'Jugador' // Registro del nombre
+                name: playerName.trim() || 'Jugador' 
             });
 
             const modesList = ['clasico', 'vof', 'choice', 'reloj'];

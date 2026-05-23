@@ -202,7 +202,7 @@ export default function Game({ route, navigation }) {
                     <Text style={styles.scoreBig}>{score}</Text>
                 </View>
 
-                {/* MODIFICACIÓN: Condicional en la grilla final de estadísticas */}
+                
                 <View style={styles.statsGrid}>
                     {gameMode !== 'reloj' ? (
                         <View style={styles.statBox}><Text style={styles.statBoxLabel}>NIVEL</Text><Text style={styles.statBoxVal}>{level}</Text></View>
@@ -253,7 +253,7 @@ export default function Game({ route, navigation }) {
             <Animated.View style={[StyleSheet.absoluteFillObject,{borderWidth: 20, borderColor: flashColor, opacity: flashAnim, zIndex: 10, pointerEvents: 'none' }]} />
 
             <Animated.View style={[styles.container, { transform: [{ translateX: shakeAnim }] }]}>
-                {/* MODIFICACIÓN: Cabecera con condicional para Ocultar Nivel */}
+                
                 <View style={styles.header}>
                     {gameMode !== 'reloj' ? (
                         <View style={styles.headerGroup}><Text style={styles.statsLabel}>NIVEL</Text><Text style={styles.statsVal}>{level}</Text></View>
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     containerWrapper: { flex: 1, backgroundColor: THEME.bg },
     container: { flex: 1, padding: 15, justifyContent: 'space-between' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: THEME.border },
-    headerGroup: { alignItems: 'flex-start', width: 80 }, // Ancho fijo simétrico para mantener el reloj centrado
+    headerGroup: { alignItems: 'flex-start', width: 80 }, 
     headerMid: { alignItems: 'center' },
     statsLabel: { fontSize: 12, color: THEME.textSub, fontWeight: '700', letterSpacing: 1, marginBottom: 2 },
     statsVal: { fontSize: 20, fontWeight: 'bold', color: THEME.text },

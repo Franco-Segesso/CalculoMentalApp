@@ -1,6 +1,6 @@
-// src/utils/gameEngine.js
 
-// Generación aleatoria de operaciones según la dificultad [cite: 64, 65]
+
+
 export const generateOperation = (difficulty) => {
     let maxNum;
     let operators = ['+', '-'];
@@ -42,7 +42,7 @@ export const generateOperation = (difficulty) => {
     };
 };
 
-// Generador de opciones para el modo múltiple choice [cite: 69]
+
 export const generateMultipleChoiceOptions = (correctAnswer) => {
     const options = new Set([correctAnswer]);
     while (options.size < 4) {
@@ -52,8 +52,7 @@ export const generateMultipleChoiceOptions = (correctAnswer) => {
     return Array.from(options).sort(() => Math.random() - 0.5); // Mezclar opciones
 };
 
-// Sistema de puntaje basado en precisión y velocidad [cite: 74, 84]
-// Sistema de puntaje dinámico y preciso basado en milisegundos/segundos
+
 export const calculateScore = (timeSpentMs, maxTimeMs, isCorrect) => {
     // Penalizaciones fijas
     if (!isCorrect) return -30; // Respuesta incorrecta
@@ -68,6 +67,6 @@ export const calculateScore = (timeSpentMs, maxTimeMs, isCorrect) => {
     const points = Math.floor(100 * timeSavedPercentage);
 
     // Garantizamos un puntaje mínimo de 10 puntos si el usuario respondió
-    // correctamente pero en el ultimísimo segundo, para no darle 0.
+    // correctamente pero en el ultimo segundo, para no darle 0.
     return Math.max(10, points);
 };
